@@ -1,0 +1,25 @@
+{
+  "name": "limenrose",
+  "version": "1.0.0",
+  "description": "Lime & Rose Reporting Tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mansarip/limenrose-node.git"
+  },
+  "keywords": [
+    "report",
+    "reporting",
+    "lime",
+    "rose"
+  ],
+  "author": "Luqman B. Shariffudin",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/mansarip/limenrose-node/issues"
+  },
+  "homepage": "https://github.com/mansarip/limenrose-node#readme"
+}
