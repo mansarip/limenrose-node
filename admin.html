@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Lime &amp; Rose</title>
+	<link rel="stylesheet" type="text/css" href="libs/dhtmlx/dhtmlx.css">
+	<link rel="stylesheet" type="text/css" href="css/font.css">
+	<link rel="stylesheet" type="text/css" href="css/admin.css">
+	<script type="text/javascript" src="libs/jquery/jquery.min.js"></script>
+	<script type="text/javascript" src="libs/dhtmlx/dhtmlx.js"></script>
+</head>
+<body>
+	<div id="header">
+		<img src="img/logo.png" class="logo"/>
+		<p class="tag">Administrator Panel</p>
+		<a onclick="Logout()" class="logout" href="javascript:void(0)"><img src="img/icons/door-open-out.png"/>Logout</a>
+		<a onclick="OpenReportDesigner()" class="designerButton" href="javascript:void(0)"><img src="img/icons/pencil-ruler.png"/>Open Report Designer</a>
+	</div>
+	<div id="layout"></div>
+
+	<div id="tabAPIContent" class="content" style="display:none"></div>
+
+	<div id="tabConfigContent" class="content" style="display:none">
+		<div class="panel">
+			<h2>Create New User</h2>
+			<table class="createUser">
+				<colgroup>
+					<col style="width:130px"/>
+				</colgroup>
+				<tr>
+					<td>Username</td>
+					<td><input type="text" class="username"/></td>
+				</tr>
+				<tr>
+					<td>Password</td>
+					<td><input type="password" class="password"/></td>
+				</tr>
+				<tr>
+					<td>Confirm Password</td>
+					<td><input type="password" class="confirmPassword"/></td>
+				</tr>
+				<tr>
+					<td>Type</td>
+					<td>
+						<select class="type">
+							<option value="normal">Normal</option>
+							<option value="administrator">Administrator</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>
+						<button onclick="CreateUser()">Create</button>
+						<button>Reset</button>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div class="panel">
+			<h2>Users</h2>
+			<table class="user">
+				<col style="width:50px"></col>
+				<tr>
+					<th>#</th>
+					<th>Username</th>
+					<th>Type</th>
+					<th>Action</th>
+				</tr>
+			</table>
+		</div>
+
+		<div class="panel">
+			<h2>About</h2>
+			<p><b>Application name</b><br/>Lime & Rose Reporting Tools</p>
+			<p><b>Version</b><br/>1.0</p>
+			<p><b>Last update</b><br/>13 December 2015</p>
+			<p><b>Server-side engine</b><br/>Nodejs</p>
+		</div>
+	</div>
+
+	<div id="tabGeneralContent" class="content" style="display:none">
+		<h2>Summary</h2>
+		<table class="summary">
+			<tr>
+				<th>Total Report</th>
+				<th>Public Report</th>
+				<th>Private Report</th>
+				<th>Total User</th>
+			</tr>
+			<tr>
+				<td><span id="summaryTotalReport">0</span></td>
+				<td><span id="summaryPublicReport">0</span></td>
+				<td><span id="summaryPrivateReport">0</span></td>
+				<td><span id="summaryTotalUser">0</span></td>
+			</tr>
+		</table>
+		<p class="note"><b>Public Report</b> : Anyone can access the report, no permission required. <br/><b>Private Report</b> : Need permission to view the report.</p>
+		
+		<h2>List of Report</h2>
+		<table>
+			<tr>
+				<th>#</th>
+				<th>File Name</th>
+				<th>Type</th>
+				<th>Action</th>
+				<th><input type="checkbox"/></th>
+			</tr>
+			<tr>
+				<td>1</td>
+				<td>senarai_hutang.lnr</td>
+				<td>Private</td>
+				<td>
+					<button>Remove</button>
+					<button>Edit</button>
+				</td>
+				<td><input type="checkbox"/></td>
+			</tr>
+		</table>
+	</div>
+	<script type="text/javascript" src="js/admin.main.js"></script>
+</body>
+</html>

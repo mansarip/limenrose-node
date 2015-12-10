@@ -1,0 +1,36 @@
+{
+	"General":{
+		"Login":{
+			"description":"Handle login request. If success, a logged session will be set.",
+			"path":"/api/login",
+			"type":"post",
+			"param":["username","password"]
+		},
+		"Check Login":{
+			"description":"Check if user has a valid session.",
+			"path":"/api/checklogin",
+			"type":"get"
+		}
+	},
+	"Administrator Panel":{
+		"Admin Data":{
+			"description":"Get all data for administrator panel.",
+			"path":"/api/admin/data",
+			"type":"get"	
+		}
+	},
+	"Designer":{
+		"Load File":{
+			"description":"Load .lnr data file. Designer will upload the file and return the content of the file.",
+			"path":"/api/designer/load",
+			"type":"post",
+			"param":["file"]
+		},
+		"Test Connection":{
+			"description":"",
+			"path":"/api/designer/testconnection",
+			"type":"post",
+			"param":[""]
+		}
+	}
+}

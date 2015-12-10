@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Lime &amp; Rose Report Designer</title>
+	<meta charset="utf-8"/>
+	<link rel="icon" href="favicon.ico" type="image/x-icon"/>
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+	<link rel="stylesheet" type="text/css" href="css/font.css">
+	<link rel="stylesheet" type="text/css" href="libs/dhtmlx/dhtmlx.css">
+	<link rel="stylesheet" type="text/css" href="libs/jqueryui/jquery-ui.min.css">
+	<link rel="stylesheet" type="text/css" href="libs/jqueryui/jquery-ui.theme.min.css">
+	<link rel="stylesheet" type="text/css" href="css/designer.css">
+	<script type="text/javascript" src="libs/dhtmlx/dhtmlx.js"></script>
+	<script type="text/javascript" src="libs/jquery/jquery.min.js"></script>
+	<script type="text/javascript" src="libs/jqueryui/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="libs/mousetrap/mousetrap.min.js"></script>
+	<script type="text/javascript" src="js/designer.app.js"></script>
+	<script type="text/javascript" src="js/designer.band.js"></script>
+	<script type="text/javascript" src="js/designer.element.js"></script>
+	<script type="text/javascript" src="js/designer.main.js"></script>
+</head>
+<body>
+	<div id="logodesigner"></div>
+	<div id="app"></div>
+	<iframe id="savetolocal" src="" style="display:none"></iframe>
+
+	<div class="content" style="display:none" data-id="connectionAddNew">
+		<table border="0" class="windowForm">
+			<col style="width:120px"></col>
+			<col style="width:10px"></col>
+			<col></col>
+			<tr>
+				<td colspan="3"><b>Add New Connection</b></td>
+			</tr>
+			<tr>
+				<td>Connection Name</td>
+				<td>:</td>
+				<td><input type="text" class="connectionName fullwidth" data-key="name" value="AAA" autofocus="autofocus"/></td>
+			</tr>
+			<tr>
+				<td>Type</td>
+				<td>:</td>
+				<td>
+					<select class="type" data-key="type">
+						<option value="" disabled="disabled">Database type</option>
+						<option value="mysql" selected="selected">MySQL</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Host</td>
+				<td>:</td>
+				<td><input type="text" class="host fullwidth" data-key="host" value="localhost"/></td>
+			</tr>
+			<tr>
+				<td>Username</td>
+				<td>:</td>
+				<td><input type="text" class="username fullwidth" data-key="user" value="root"/></td>
+			</tr>
+			<tr>
+				<td>Password</td>
+				<td>:</td>
+				<td><input type="password" class="password fullwidth" data-key="password" value="123"/></td>
+			</tr>
+			<tr>
+				<td>Database Name</td>
+				<td>:</td>
+				<td><input type="text" class="host fullwidth" data-key="dbname" value="test"/></td>
+			</tr>
+			<tr>
+				<td>Port</td>
+				<td>:</td>
+				<td><input type="number" class="port" data-key="port" value="3306"/></td>
+			</tr>
+			<tr>
+				<td>SID</td>
+				<td>:</td>
+				<td><input type="text" class="sid fullwidth" data-key="sid" value="Hoho"/></td>
+			</tr>
+			<tr>
+				<td>Service Name</td>
+				<td>:</td>
+				<td><input type="text" class="serviceName fullwidth" data-key="serviceName" value="Wuuuu"/></td>
+			</tr>
+			<tr>
+				<td>Socket</td>
+				<td>:</td>
+				<td><input type="text" class="socket fullwidth" data-key="socket" value="9090"/></td>
+			</tr>
+		</table>
+		<div class="buttonPlaceholder" style="padding:10px 15px;">
+			<input type="button" class="test" style="padding:6px 35px" value="Test"/>
+			<input type="button" class="save" style="padding:6px 35px" value="Save"/>
+			<input type="button" class="reset" value="Reset"/>
+		</div>
+	</div>
+
+	<div class="content" style="display:none" data-id="connectionEdit">
+		<table border="0" class="windowForm">
+			<col style="width:120px">
+			<col style="width:10px">
+			<col>
+			<tr>
+				<td colspan="3"><b>Edit Connection Details</b></td>
+			</tr>
+			<tr>
+				<td>Connection Name</td>
+				<td>:</td>
+				<td><input type="text" class="connectionName fullwidth" data-key="name" value="" autofocus/></td>
+			</tr>
+			<tr>
+				<td>Type</td>
+				<td>:</td>
+				<td>
+					<select class="type" data-key="type" data-default="">
+						<option value="" selected="selected" disabled="disabled">Database type</option>
+						<option value="mysql">MySQL</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Host</td>
+				<td>:</td>
+				<td><input type="text" class="host fullwidth" data-key="host" value=""/></td>
+			</tr>
+			<tr>
+				<td>Username</td>
+				<td>:</td>
+				<td><input type="text" class="username fullwidth" data-key="user" value=""/></td>
+			</tr>
+			<tr>
+				<td>Password</td>
+				<td>:</td>
+				<td><input type="password" class="password fullwidth" data-key="password" value=""/></td>
+			</tr>
+			<tr>
+				<td>Database Name</td>
+				<td>:</td>
+				<td><input type="text" class="dbname fullwidth" data-key="dbname" value=""/></td>
+			</tr>
+			<tr>
+				<td>Port</td>
+				<td>:</td>
+				<td><input type="number" class="port" data-key="port" value=""/></td>
+			</tr>
+			<tr>
+				<td>SID</td>
+				<td>:</td>
+				<td><input type="text" class="sid fullwidth" data-key="sid" value=""/></td>
+			</tr>
+			<tr>
+				<td>Service Name</td>
+				<td>:</td>
+				<td><input type="text" class="serviceName fullwidth" data-key="serviceName" value=""/></td>
+			</tr>
+			<tr>
+				<td>Socket</td>
+				<td>:</td>
+				<td><input type="text" class="socket fullwidth" data-key="socket" value=""/></td>
+			</tr>
+		</table>
+		<div class="buttonPlaceholder" style="padding:10px 15px;">
+			<input type="button" class="test" style="padding:6px 35px" value="Test"/>
+			<input type="button" class="save" style="padding:6px 35px" value="Save"/>
+		</div>
+	</div>
+
+	<div class="content" style="display:none" data-id="dataSourceAddNew">
+		<table border="0" class="windowForm">
+			<col style="width:120px">
+			<col style="width:10px">
+			<col>
+			<tr>
+				<td colspan="3"><b>Add New Data Source</b></td>
+			</tr>
+			<tr>
+				<td>Type</td>
+				<td>:</td>
+				<td>
+					<select class="type" data-key="type">
+						<option value="database">Database</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Connection</td>
+				<td>:</td>
+				<td>
+					<select class="connection" data-key="connection">
+						'+ connectionDropDown +'
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Data Source Name</td>
+				<td>:</td>
+				<td><input type="text" class="name fullwidth" data-key="name" value=""/></td>
+			</tr>
+			<tr>
+				<td>Main</td>
+				<td>:</td>
+				<td><input type="checkbox" class="main" data-key="main"/></td>
+			</tr>
+			<tr>
+				<td>Query</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td colspan="3"><textarea class="query" data-key="query" style="width:97%; height:120px; outline:none; resize:none; font-family:\'Consolas\', monospace;"></textarea></td>
+			</tr>
+			<tr>
+				<td><small>Max Preview Records</small></td>
+				<td>:</td>
+				<td><input type="number" class="maxpreview" data-key="maxpreview" value="100"/></td>
+			</tr>
+		</table>
+		<div class="buttonPlaceholder" style="padding:10px 15px;">
+			<input type="button" class="preview" style="padding:6px 35px" value="Preview"/>
+			<input type="button" class="save" style="padding:6px 35px" value="Save"/>
+		</div>
+	</div>
+</body>
+</html>

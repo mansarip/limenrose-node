@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Lime &amp; Rose</title>
+	<link rel="stylesheet" type="text/css" href="libs/dhtmlx/dhtmlx.css">
+	<link rel="stylesheet" type="text/css" href="css/font.css">
+	<style>
+	html,body{
+		height: 100%;
+	}
+	body{
+		margin: 0;
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		background: #fff;
+		background: -moz-radial-gradient(center, ellipse cover,  #fff 0%, #E4E4E4 100%);
+		background: -webkit-radial-gradient(center, ellipse cover,  #fff 0%,#E4E4E4 100%);
+		background: radial-gradient(ellipse at center,  #fff 0%,#E4E4E4 100%);
+		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fff', endColorstr='#E4E4E4',GradientType=1 );
+		font-family: 'Roboto', sans-serif;
+		font-smooth:always;
+		transform: rotate(-0.0000000001deg)
+		-webkit-font-smoothing: subpixel-antialiased;
+	}
+	.wincontentx{
+		display: none;
+	}
+	#loginContent{
+		font-size: 12px;
+		padding: 30px;
+	}
+	#loginContent table{
+		width: 100%;
+	}
+	#loginContent input{
+		width: 90%;
+		outline: none;
+		border: 1px solid #A7A7A7;
+	    padding: 3px;
+	}
+	p.footer{
+		position: absolute;
+		bottom: 0;
+		text-align: center;
+		left: 0;
+		right: 0;
+		font-size: 11px;
+	}
+	p.footer a{
+		color: #333;
+		text-decoration: none;
+	}
+	p.footer a:hover{
+		text-decoration: underline;
+		color: red;
+	}
+	.loginbutton{
+		margin: 0;
+		text-align: center;
+		outline: none;
+	}
+	.logo{
+		text-align: center;
+		margin-bottom: 30px;
+	}
+	#errorbar{
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		background: #B33030;
+		height: 30px;
+		text-align: center;
+		font-size: 12px;
+		font-weight: bold;
+		color: #fff;
+		line-height: 30px;
+		display: none;
+	}
+	#errorbar span{
+		font-size: 10px;
+		font-weight: normal;
+	}
+	</style>
+	<script type="text/javascript" src="libs/jquery/jquery.min.js"></script>
+	<script type="text/javascript" src="libs/dhtmlx/dhtmlx.js"></script>
+</head>
+<body>
+	<div id="errorbar" onclick="CloseErrorBar()">Access denied! Invalid username or password. <span>[Click to close]</span></div>
+	<div id="loginContent" class="wincontent" style="display:none">
+		<div class="logo"><img src="img/logo.png"/></div>
+		<form>
+			<table>
+				<colgroup>
+					<col style="width:70px;"/>
+					<col style="width:10px;"/>
+				</colgroup>
+				<tr>
+					<td>Username</td>
+					<td>:</td>
+					<td><input class="username" value="admin" type="text" autofocus/></td>
+				</tr>
+				<tr>
+					<td>Password</td>
+					<td>:</td>
+					<td><input class="password" value="123" type="password"/></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td></td>
+					<td><button type="submit" onclick="Login(event)" class="loginbutton dhtmlx_popup_button">Sign In</button></td>
+				</tr>
+			</table>
+		</form>
+	</div>
+
+	<p class="footer">
+		<a href="#">Console</a> &#183;
+		<a href="#">Documentation</a> &#183;
+		<a href="#">License</a>
+		<br/>
+		&#169; 2015 Luqman B. Shariffudin
+	</p>
+
+	<script type="text/javascript">
+		var content = document.getElementById('loginContent');
+		var dhxWins = new dhtmlXWindows();
+		var win = dhxWins.createWindow('login', 0, 0, 400, 280);
+		win.center();
+		win.button('close').hide();
+		win.button('park').hide();
+		win.button('minmax').hide();
+		win.setText('Login');
+		win.denyMove();
+		win.denyResize();
+		win.appendObject(content);
+
+		function Login(event) {
+			event.preventDefault();
+
+			win.progressOn();
+
+			$.ajax({
+				url:'/api/login',
+				data:{
+					username: $('input.username').val(),
+					password: $('input.password').val()
+				},
+				type:'post',
+				dataType:'json'
+			})
+			.done(function(res){
+				if (res.status === 'success') {
+					window.location.reload();
+				} else {
+					$('#errorbar').show();
+					win.progressOff();
+				}
+			});
+		}
+
+		function CloseErrorBar() {
+			$('#errorbar').hide();
+		}
+	</script>
+</body>
+</html>
