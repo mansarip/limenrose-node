@@ -695,7 +695,6 @@ function Designer() {
 
 		//unbind
 		connectionWin.attachEvent('onClose', function(){
-			layout.cells('b').detachObject();
 			$(layout.base).off('click', '.buttonPlaceholder input.test');
 			$(layout.base).off('click', '.buttonPlaceholder input.reset');
 			$(layout.base).off('click', '.buttonPlaceholder input.save');
@@ -2714,31 +2713,71 @@ function Designer() {
 	};
 
 	Designer.prototype.PreviewRecords = function(detail) {
-		var replaceProcess = this.ReplaceVariableInQueryWithParameterValue(detail.query);
+		var pattern = /{{(.*?)}}/g;
+		var match = detail.query.match(pattern) || [];
+		var variables = [];
 
-		// jika ada variable parameter, tapi belum define
-		if (replaceProcess.variableExists && replaceProcess.undefinedParameter) {
-			dhtmlx.confirm({
-				title:'Parameter',
-				style:'confirm-info',
-				text: replaceProcess.undefinedParameterHTML + '<p>Please define the parameters before executing the query. Click OK to open Parameter window or click Cancel to go back.</p>',
-				callback : function(answer){
-					if (answer === true) {
-						designer.OpenParameterWindow();
-					}
-				}
-			});
-
-			// terminate process
-			return false;
+		for (var v = 0; v < match.length; v++) {
+			match[v] = match[v].substr(2);
+			match[v] = match[v].slice(0, -2);
+			if (match[v] !== '') variables.push(match[v]);
 		}
 
-		// dhtmlx windows object
+		if (variables.length > 0) {
+			var windows = new dhtmlXWindows();
+			windows.attachViewportTo('app');
+
+			var promptParamValueWin = windows.createWindow({
+				id:"connection",
+				width:400,
+				height:300,
+				center:true,
+				modal:true,
+				resize:false
+			});
+			promptParamValueWin.button('minmax').hide();
+
+			promptParamValueWin.button('park').hide();
+			promptParamValueWin.setText('Parameter');
+			promptParamValueWin.attachHTMLString(designer.GetView('promptParameterValue'));
+			this.currentWindowOpen = promptParamValueWin;
+
+			var table = $('#promptParameterValue table');
+
+			for (var n = 0; n < variables.length; n++) {
+				table.append('<tr><td>'+ variables[n] +'</td><td>:</td><td><input type="text" data-key="'+ variables[n] +'"/></td></tr>');
+			}
+
+			$('#promptParameterValue input.preview').on('click', function(){
+				var param = {};
+
+				table.find('input:not(.preview)').each(function(){
+					var key = $(this).attr('data-key');
+					param[key] = $(this).val();
+				});
+
+				designer._InitPreviewRecordsWindow(detail, param);
+			});
+
+			promptParamValueWin.attachEvent('onClose', function(){
+				$('#promptParameterValue button.preview').off();
+				designer.currentWindowOpen = null;
+				return true;
+			});
+
+		} else {
+			designer._InitPreviewRecordsWindow(detail);
+		}
+	};
+
+	Designer.prototype._InitPreviewRecordsWindow = function(detail, param){
+		if (param === undefined) param = {};
+
 		var windows = new dhtmlXWindows();
 		windows.attachViewportTo('app');
 
 		var previewWin = windows.createWindow({
-			id:"dataSource",
+			id:"previewWin",
 			width:600,
 			height:400,
 			center:true,
@@ -2746,16 +2785,60 @@ function Designer() {
 		});
 		previewWin.button('park').hide();
 		previewWin.setText('Preview Records');
+		previewWin.progressOn();
 
-		// papar result
-		previewWin.attachURL(this.phpPath + 'designer.previewrecords.php', null, {
-			connection : JSON.stringify(designer.details.app.connection[detail.connection]),
-			query : replaceProcess.modifiedQuery,
-			max : detail.maxpreview
+		$.ajax({
+			url:'/api/designer/previewrecords',
+			data:{
+				connection : JSON.stringify(designer.details.app.connection[detail.connection]),
+				query : detail.query,
+				max : detail.maxpreview,
+				param : JSON.stringify(param)
+			},
+			dataType:'json',
+			type:'post'
+		})
+		.done(function(res){
+			designer._CreatePreviewRecordsTable(previewWin, res);
+		})
+		.fail(function(){
+			previewWin.progressOff();
+			dhtmlx.alert({
+				title:'Unexpected Error',
+				style:"alert",
+				text:'<img src="'+ designer.icon.error +'"/><br/>Failed to connect to server'
+			});
+			return false;
 		});
+	};
 
-		// terminate
-		return true;
+	Designer.prototype._CreatePreviewRecordsTable = function(previewWin, res){
+		previewWin.progressOff();
+
+		if (res.status === 1) {
+			if (res.result.length > 0) {
+				var table = '<table class="previewRecords">';
+
+				table += '<tr>';
+				for (var column in res.result[0]) {
+					table += '<th>' + column + '</th>';
+				}
+				table += '</tr>';
+
+				for (var d = 0; d < res.result.length; d++) {
+					table += '<tr>';
+					for (var key in res.result[d]) {
+						table += '<td>' + res.result[d][key] + '</td>';
+					}
+					table += '</tr>';
+				}
+
+				table += '</table>';
+				previewWin.attachHTMLString(table);
+			} else {
+				previewWin.attachHTMLString('<p class="previewRecords">No result.</p>');
+			}
+		}
 	};
 
 	Designer.prototype.GetVariablesFromString = function(string) {

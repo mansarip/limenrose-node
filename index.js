@@ -56,9 +56,41 @@ app.post('/api/designer/testconnection', function(req, res){
 			return;
 		}
 
-		res.send({
-			status:1
-		});
+		res.send({status:1});
+	});
+
+	con.end();
+});
+
+// designer : preview records
+app.post('/api/designer/previewrecords', function(req, res){
+	var resData = {};
+	resData.status = 0;
+
+	req.body.connection = JSON.parse(req.body.connection);
+	req.body.param = JSON.parse(req.body.param);
+
+	var con = mysql.createConnection({
+		host: req.body.connection.host,
+		user: req.body.connection.user,
+		password: req.body.connection.password
+	});
+
+	var prepare = PrepareSQLQuery({
+		query: req.body.query,
+		param: req.body.param
+	});
+
+	con.query(prepare.query, prepare.param, function(err, result){
+		if (err) {
+			resData.err = err;
+			res.send(resData);
+			return;
+		}
+
+		resData.status = 1;
+		resData.result = result;
+		res.send(resData);
 	});
 
 	con.end();
@@ -139,6 +171,52 @@ app.get('/api/checklogin', function(req, res){
 app.get('/api/getsessionid', function(req, res){
 	res.send('');
 });
+
+function PrepareSQLQuery(data) {
+	var originalQuery = data.query;
+	var modifiedQuery = data.query.slice(0);
+	var paramValue = [];
+	var paramWithIndex = {};
+
+	if (data.param === undefined) {
+		data.param = {};
+	}
+
+	if (Object.keys(data.param).length > 0) {
+		for (var key in data.param) {
+			var search = '{{'+  key +'}}';
+			var regex = new RegExp(search, 'g');
+			var match;
+			var tempFakeString = '';
+
+			for (var f = 0; f < search.length; f++) {
+				tempFakeString += '-';
+			}
+
+			while (match = regex.exec(modifiedQuery) != null) {
+				var i = modifiedQuery.indexOf(search);
+				modifiedQuery = modifiedQuery.replace(search, tempFakeString);
+
+				paramWithIndex[i] = search.substr(2).slice(0,-2);
+			}
+		}
+
+		for (var key in paramWithIndex) {
+			paramValue.push(data.param[paramWithIndex[key]]);
+		}
+
+		for (var key in data.param) {
+			var search = '{{'+ key +'}}';
+			var regex = new RegExp(search, 'g');
+			originalQuery = originalQuery.replace(regex, '?');
+		}	
+	}
+
+	return {
+		query : originalQuery,
+		param : paramValue
+	};
+}
 
 app.listen(3000, function(){
 	console.log('Lime & Rose is now running on port 3000');

@@ -90,6 +90,11 @@ table.windowForm textarea{
 #workspace .area .element.qrcode{
 	background: url('../img/icons/barcode-2d.png') no-repeat center;
 }
+#promptBox input.promptValue{
+	font-size: 12px;
+	font-family: inherit;
+	outline: none;
+}
 .buttonPlaceholder{
 	position: absolute;
 	bottom: 0;
@@ -185,6 +190,40 @@ textarea.codeText{
 	resize:none;
 	border: none;
 	font-family: sans-serif;
+	font-size: 13px;
+}
+#promptParameterValue .wrapper{
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 50px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	background-color: #F8F8F8;
+	border-bottom: 1px solid #E0E0E0;
+}
+table.previewRecords{
+	width: 100%;
+	font-size: 12px;
+	font-family: 'Roboto', sans-serif;
+}
+table.previewRecords th{
+	background-color: #D8D8D8;
+}
+table.previewRecords tr:nth-child(odd){
+	background-color: #F1F1F1;
+}
+p.previewRecords{
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: 0;
+	text-align:center;
+	font-family: 'Roboto', sans-serif;
+	padding: 20px;
 	font-size: 13px;
 }
 

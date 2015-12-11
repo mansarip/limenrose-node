@@ -60,7 +60,7 @@
 			<tr>
 				<td>Password</td>
 				<td>:</td>
-				<td><input type="password" class="password fullwidth" data-key="password" value="123"/></td>
+				<td><input type="password" class="password fullwidth" data-key="password" value=""/></td>
 			</tr>
 			<tr>
 				<td>Database Name</td>
@@ -207,7 +207,7 @@
 				<td></td>
 			</tr>
 			<tr>
-				<td colspan="3"><textarea class="query" data-key="query" style="width:97%; height:120px; outline:none; resize:none; font-family:\'Consolas\', monospace;"></textarea></td>
+				<td colspan="3"><textarea class="query" data-key="query" style="width:97%; height:120px; outline:none; resize:none; font-family:\'Consolas\', monospace;">select * from test.peribadi where negeri = {{negeri}}</textarea></td>
 			</tr>
 			<tr>
 				<td><small>Max Preview Records</small></td>
@@ -218,6 +218,19 @@
 		<div class="buttonPlaceholder" style="padding:10px 15px;">
 			<input type="button" class="preview" style="padding:6px 35px" value="Preview"/>
 			<input type="button" class="save" style="padding:6px 35px" value="Save"/>
+		</div>
+	</div>
+
+	<div class="content" style="display:none" data-id="promptParameterValue">
+		<div class="wrapper">
+			<table border="0" class="windowForm">
+				<col style="width:120px">
+				<col style="width:10px">
+				<col>
+			</table>
+		</div>
+		<div class="buttonPlaceholder" style="padding:10px 15px;">
+			<input type="button" class="preview" style="padding:6px 35px" value="OK" onclick=""/>
 		</div>
 	</div>
 </body>
