@@ -226,6 +226,11 @@ p.previewRecords{
 	padding: 20px;
 	font-size: 13px;
 }
+#promptParameterValue p.message{
+	font-size: 12px;
+	font-family: 'Roboto', sans-serif;
+	text-align: center;
+}
 
 /*overwrite jqueryui handle styles*/
 .element .ui-resizable-n{ top:0; height:2px;}

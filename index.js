@@ -70,30 +70,72 @@ app.post('/api/designer/previewrecords', function(req, res){
 	req.body.connection = JSON.parse(req.body.connection);
 	req.body.param = JSON.parse(req.body.param);
 
-	var con = mysql.createConnection({
-		host: req.body.connection.host,
-		user: req.body.connection.user,
-		password: req.body.connection.password
-	});
+	if (req.body.connection.type === 'mysql') {
+		var con = mysql.createConnection({
+			host: req.body.connection.host,
+			user: req.body.connection.user,
+			password: req.body.connection.password
+		});
 
-	var prepare = PrepareSQLQuery({
-		query: req.body.query,
-		param: req.body.param
-	});
+		var prepare = PrepareSQLQuery({
+			query: req.body.query,
+			param: req.body.param
+		});
 
-	con.query(prepare.query, prepare.param, function(err, result){
-		if (err) {
-			resData.err = err;
+		con.query(prepare.query, prepare.param, function(err, result){
+			if (err) {
+				resData.err = err;
+				res.send(resData);
+				return;
+			}
+
+			resData.status = 1;
+			resData.result = result;
 			res.send(resData);
-			return;
-		}
+		});
 
-		resData.status = 1;
-		resData.result = result;
-		res.send(resData);
-	});
+		con.end();
+	}
+});
 
-	con.end();
+// designer : fetch column
+app.post('/api/designer/fetchcolumn', function(req, res){
+	var resData = {};
+	resData.status = 0;
+
+	if (req.body.connection.type === 'mysql') {
+		var con = mysql.createConnection({
+			host: req.body.connection.host,
+			user: req.body.connection.user,
+			password: req.body.connection.password
+		});
+
+		var prepare = PrepareSQLQuery({
+			query: req.body.query,
+			param: req.body.param
+		});
+
+		prepare.query = 'select * from (' + prepare.query +') a limit 1';
+
+		con.query(prepare.query, prepare.param, function(err, result){
+			if (err) {
+				resData.err = err;
+				res.send(resData);
+				return;
+			}
+
+			resData.column = []
+
+			for (var key in result[0]) {
+				resData.column.push(key);
+			}
+
+			resData.status = 1;
+			res.send(resData);
+		});
+
+		con.end();
+	}
 });
 
 // login

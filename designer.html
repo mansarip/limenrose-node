@@ -194,12 +194,12 @@
 			<tr>
 				<td>Data Source Name</td>
 				<td>:</td>
-				<td><input type="text" class="name fullwidth" data-key="name" value=""/></td>
+				<td><input type="text" class="name fullwidth" data-key="name" value="POWER RANGERS"/></td>
 			</tr>
 			<tr>
 				<td>Main</td>
 				<td>:</td>
-				<td><input type="checkbox" class="main" data-key="main"/></td>
+				<td><input type="checkbox" checked="checked" class="main" data-key="main"/></td>
 			</tr>
 			<tr>
 				<td>Query</td>
@@ -223,6 +223,7 @@
 
 	<div class="content" style="display:none" data-id="promptParameterValue">
 		<div class="wrapper">
+			<p class="message"></p>
 			<table border="0" class="windowForm">
 				<col style="width:120px">
 				<col style="width:10px">
@@ -231,6 +232,60 @@
 		</div>
 		<div class="buttonPlaceholder" style="padding:10px 15px;">
 			<input type="button" class="preview" style="padding:6px 35px" value="OK" onclick=""/>
+		</div>
+	</div>
+
+	<div class="content" style="display:none" data-id="dataSourceEdit">
+		<table border="0" class="windowForm" id="dataSourceEdit">
+			<col style="width:120px">
+			<col style="width:10px">
+			<col>
+			<tr>
+				<td colspan="3"><b>Edit Data Source</b></td>
+			</tr>
+			<tr>
+				<td>Type</td>
+				<td>:</td>
+				<td>
+					<select class="type" data-key="type">
+						<option value="database">Database</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Connection</td>
+				<td>:</td>
+				<td>
+					<select class="connection" data-key="connection"></select>
+				</td>
+			</tr>
+			<tr>
+				<td>Data Source Name</td>
+				<td>:</td>
+				<td><input type="text" class="name fullwidth" data-key="name" value=""/></td>
+			</tr>
+			<tr>
+				<td>Main</td>
+				<td>:</td>
+				<td><input type="checkbox" class="main" data-key="main"/></td>
+			</tr>
+			<tr>
+				<td>Query</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td colspan="3"><textarea class="query" data-key="query" style="width:97%; height:120px; outline:none; resize:none; font-family:\'Consolas\', monospace;"></textarea></td>
+			</tr>
+			<tr>
+				<td><small>Max Preview Records</small></td>
+				<td>:</td>
+				<td><input type="number" class="maxpreview" data-key="maxpreview" value="100"/></td>
+			</tr>
+		</table>
+		<div class="buttonPlaceholder" style="padding:10px 15px;">
+			<input type="button" class="preview" style="padding:6px 35px" value="Preview"/>
+			<input type="button" class="save" style="padding:6px 35px" value="Save"/>
 		</div>
 	</div>
 </body>

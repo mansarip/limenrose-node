@@ -2223,11 +2223,9 @@ function Designer() {
 				return false;
 			}
 
-			// tambah replace process setting dalam detail
-			detail.replaceProcess = designer.ReplaceVariableInQueryWithParameterValue(detail.query);
-
 			// add mode *datasource
 			if (mode === 'add') {
+				
 				// jika nama dah ada
 				if (designer.details.app.dataSource[detail.name] !== undefined) {
 					dhtmlx.alert({
@@ -2243,94 +2241,80 @@ function Designer() {
 				layout.cells('a').progressOn();
 				layout.cells('b').progressOn();
 
-				$.ajax({
-					url:designer.phpPath + 'designer.fetchcolumn.php',
-					type:'post',
-					data:{
-						detail : JSON.stringify(detail),
-						connection : JSON.stringify(designer.details.app.connection[detail.connection])
-					},
-					dataType:'json'
-				})
-				.done(function(response){
-					if (response.status === 0) {
-						dhtmlx.alert({
-							title:'Error',
-							style:"alert-info",
-							text:'<img src="'+ designer.icon.error +'"/><br/>' + response.message
-						});
+				// variable checking
+				var pattern = /{{(.*?)}}/g;
+				var match = detail.query.match(pattern) || [];
+				var variables = [];
 
-						// reset
-						toolbar.enableItem(1);
-						layout.cells('a').progressOff();
-						layout.cells('b').progressOff();
-						return false;
+				for (var v = 0; v < match.length; v++) {
+					match[v] = match[v].substr(2);
+					match[v] = match[v].slice(0, -2);
+					if (match[v] !== '') variables.push(match[v]);
+				}
 
-					} else {
-						//update tree
-						tree.insertNewItem(0, detail.name, detail.name, null, 'document.png', 'document.png', 'document.png');
-						designer.tree.data.insertNewItem(1, '1:::' + detail.name, detail.name, null, 'document.png', 'document.png', 'document.png');
-
-						//update details #setter
-						designer.details.app.dataSource[detail.name] = detail;
-
-						if (detail.main) designer.mainQuery = designer.details.app.dataSource[detail.name];
-
-						// jika data source tiada group, tambah root group
-						if (designer.details.app.dataSource[detail.name].group === undefined) {
-							designer.details.app.dataSource[detail.name].group = {"ROOT_GROUP":{ "column":{} }};
-
-							for (var c=0; c<response.length; c++) {
-								var columnName = response[c].name;
-								var columnType = response[c].dataType;
-								designer.details.app.dataSource[detail.name].group['ROOT_GROUP'].column[columnName] = { dataType:columnType };
-							}
-						}
-
-						//clear right side
-						layout.cells('b').attachHTMLString(noDataSourceSelected);
-
-						//clear tree selection
-						tree.clearSelection();
-
-						// display message
-						dhtmlx.message({
-							text:'<table border="0"><col style="width:30px"><col><tr><td><img src="../img/icons/tick.png"></td><td>Data source has been successfully saved!</td></tr></table>',
-							expire:2000
-						});
-
-						// update tree structure
-						if (detail.main) {
-							var groupNameTop = Object.keys(designer.mainQuery.group)[0];
-							designer.tree.structure.setItemText('header', 'Header <small class="grouplabel">'+ groupNameTop +'</small>');
-							designer.tree.structure.setItemText('footer', 'Footer <small class="grouplabel">'+ groupNameTop +'</small>');
-						}
-
-						// update band title
-						$('#workspace .band[data-name="Header"] .title p').text('Header : ' + groupNameTop);
-						$('#workspace .band[data-name="Footer"] .title p').text('Footer : ' + groupNameTop);
-					}
-
-					// reset
-					toolbar.enableItem(1);
-					layout.cells('a').progressOff();
-					layout.cells('b').progressOff();
-
-					mode = null;
-					editName = null;
-				})
-				.fail(function(){
-					dhtmlx.alert({
-						title:'Error',
-						style:"alert-info",
-						text:'<img src="'+ designer.icon.error +'"/><br/>Fetching failure!'
+				// jika tiada variable dalam query
+				if (variables.length === 0) {
+					designer._FetchColumn({
+						toolbar : toolbar,
+						layout : layout,
+						tree : tree,
+						noDataSourceSelected : noDataSourceSelected,
+						detail : detail,
+						layout : layout
 					});
 
-					// reset
-					toolbar.enableItem(1);
-					layout.cells('a').progressOff();
-					layout.cells('b').progressOff();
-				});
+				// jika ada variable dalam query
+				} else if (variables.length > 0) {
+
+					var windows = new dhtmlXWindows();
+					windows.attachViewportTo('app');
+
+					var promptParamValueWin = windows.createWindow({
+						id:"connection",
+						width:400,
+						height:300,
+						center:true,
+						modal:true,
+						resize:false
+					});
+					promptParamValueWin.button('minmax').hide();
+
+					promptParamValueWin.button('park').hide();
+					promptParamValueWin.setText('Fetching Columns');
+					promptParamValueWin.attachHTMLString(designer.GetView('promptParameterValue'));
+
+					this.currentWindowOpen = promptParamValueWin;
+
+					$('#promptParameterValue p.message').html('In order to fetch columns, a valid execution result is required.<br/>Fill the parameter value.');
+
+					var table = $('#promptParameterValue table');
+
+					for (var n = 0; n < variables.length; n++) {
+						table.append('<tr><td>'+ variables[n] +'</td><td>:</td><td><input type="text" data-key="'+ variables[n] +'"/></td></tr>');
+					}
+
+					$('#promptParameterValue input.preview').on('click', function(){
+						var param = {};
+
+						table.find('input:not(.preview)').each(function(){
+							var key = $(this).attr('data-key');
+							param[key] = $(this).val();
+						});
+
+						promptParamValueWin.progressOn();
+
+						designer._FetchColumn({
+							toolbar : toolbar,
+							layout : layout,
+							tree : tree,
+							noDataSourceSelected : noDataSourceSelected,
+							detail : detail,
+							layout : layout,
+							param : param,
+							promptParamValueWin : promptParamValueWin
+						});
+					});
+				}
 			}
 			// edit mode
 			else if (mode === 'edit') {
@@ -2584,66 +2568,9 @@ function Designer() {
 			//display remove button
 			toolbar.showItem(3);
 
-			//display edit form
-			var editDataSource = '\n\
-			<table border="0" class="windowForm" id="dataSourceEdit">\n\
-			<col style="width:120px">\n\
-			<col style="width:10px">\n\
-			<col>\n\
-			<tr>\n\
-				<td colspan="3"><b>Edit Data Source</b></td>\n\
-			</tr>\n\
-			<tr>\n\
-				<td>Type</td>\n\
-				<td>:</td>\n\
-				<td>\n\
-					<select class="type" data-key="type">\n\
-						<option value="database">Database</option>\n\
-					</select>\n\
-				</td>\n\
-			</tr>\n\
-			<tr>\n\
-				<td>Connection</td>\n\
-				<td>:</td>\n\
-				<td>\n\
-					<select class="connection" data-key="connection">\n\
-						'+ connectionDropDown +'\n\
-					</select>\n\
-				</td>\n\
-			</tr>\n\
-			<tr>\n\
-				<td>Data Source Name</td>\n\
-				<td>:</td>\n\
-				<td><input type="text" class="name fullwidth" data-key="name" value="'+ designer.details.app.dataSource[id].name +'"/></td>\n\
-			</tr>\n\
-			<tr>\n\
-				<td>Main</td>\n\
-				<td>:</td>\n\
-				<td><input type="checkbox" class="main" data-key="main"/></td>\n\
-			</tr>\n\
-			<tr>\n\
-				<td>Query</td>\n\
-				<td></td>\n\
-				<td></td>\n\
-			</tr>\n\
-			<tr>\n\
-				<td colspan="3"><textarea class="query" data-key="query" style="width:97%; height:120px; outline:none; resize:none; font-family:\'Consolas\', monospace;">'+ designer.details.app.dataSource[id].query +'</textarea></td>\n\
-			</tr>\n\
-			<tr>\n\
-				<td><small>Max Preview Records</small></td>\n\
-				<td>:</td>\n\
-				<td><input type="number" class="maxpreview" data-key="maxpreview" value="100"/></td>\n\
-			</tr>\n\
-			</table>\n\
-			';
+			layout.cells('b').attachHTMLString(designer.GetView('dataSourceEdit'));
 
-			layout.cells('b').attachHTMLString(editDataSource + closingButton);
-
-			// select dropdown (connection)
-			$(layout.base).find('select.connection').val(designer.details.app.dataSource[id].connection);
-
-			// checkbox
-			$(layout.base).find('input.main').prop('checked', designer.details.app.dataSource[id].main);
+			
 		});
 
 		// automatic show details if any
@@ -2812,6 +2739,121 @@ function Designer() {
 		});
 	};
 
+	Designer.prototype._FetchColumn = function(p){
+		var data;
+
+		if (p.param === undefined) {
+			data = {
+				connection: designer.details.app.connection[p.detail.connection],
+				query: p.detail.query
+			};
+		} else {
+			data = {
+				connection: designer.details.app.connection[p.detail.connection],
+				query: p.detail.query,
+				param: p.param
+			};
+		}
+
+		// ajax request
+		$.ajax({
+			url:'/api/designer/fetchcolumn',
+			dataType:'json',
+			data: data,
+			type:'post'
+		})
+		.done(function(res){
+			if (res.status === 0) {
+				
+				dhtmlx.alert({
+					title:'Fetch Error',
+					style:"alert-info",
+					text:'<img style="margin:-4px 4px;" src="'+ designer.icon.error +'"><p>'+ res.err.code +' ('+ res.err.errno +')</p>'
+				});
+
+			} else if (res.status === 1) {
+				// jika ada result
+				if (res.column.length > 0) {
+
+					designer._SuccessFetchColumn({
+						detail : p.detail,
+						res : res,
+						tree : p.tree,
+						noDataSourceSelected : p.noDataSourceSelected,
+						layout : p.layout
+					});
+
+				// jika tiada result
+				} else {
+					dhtmlx.alert({
+						title:'Fetch Error',
+						style:"alert-info",
+						text:'<img style="margin:-4px 4px;" src="'+ designer.icon.error +'"><p>Unable to save. Empty result set.</p>'
+					});
+				}
+			}
+
+			designer._FetchColumnReset({
+				toolbar : p.toolbar,
+				layout : p.layout,
+				promptParamValueWin : p.promptParamValueWin
+			});
+		});
+	};
+
+	Designer.prototype._FetchColumnReset = function(p) {
+		// reset
+		p.toolbar.enableItem(1);
+		p.layout.cells('a').progressOff();
+		p.layout.cells('b').progressOff();
+
+		if (p.promptParamValueWin) p.promptParamValueWin.close();
+	};
+
+	Designer.prototype._SuccessFetchColumn = function(p){
+		// display message
+		dhtmlx.message({
+			text:'<table border="0"><col style="width:30px"><col><tr><td><img src="../img/icons/tick.png"></td><td>'+ p.res.column.length +' column(s) has been successfully fetched.</td></tr></table>',
+			expire:2000
+		});
+
+		//update tree
+		p.tree.insertNewItem(0, p.detail.name, p.detail.name, null, 'document.png', 'document.png', 'document.png');
+		designer.tree.data.insertNewItem(1, '1:::' + p.detail.name, p.detail.name, null, 'document.png', 'document.png', 'document.png');
+
+		//update details #setter
+		designer.details.app.dataSource[p.detail.name] = p.detail;
+
+		if (p.detail.main) designer.mainQuery = designer.details.app.dataSource[p.detail.name];
+
+		if (designer.details.app.dataSource[p.detail.name].group === undefined) {
+			designer.details.app.dataSource[p.detail.name].group = {"ROOT_GROUP":{ "column":{} }};
+
+			for (var c=0; c<p.res.column.length; c++) {
+				var columnName = p.res.column[c];
+				var columnType = 'string';
+				designer.details.app.dataSource[p.detail.name].group['ROOT_GROUP'].column[columnName] = { dataType:columnType };
+			}
+		}
+
+		//clear right side
+		p.layout.cells('b').attachHTMLString(p.noDataSourceSelected); //HOHOHO
+
+		//clear tree selection
+		p.tree.clearSelection();
+
+		// update tree structure
+		if (p.detail.main) {
+			var groupNameTop = Object.keys(designer.mainQuery.group)[0];
+			designer.tree.structure.setItemText('header', 'Header <small class="grouplabel">'+ groupNameTop +'</small>');
+			designer.tree.structure.setItemText('footer', 'Footer <small class="grouplabel">'+ groupNameTop +'</small>');
+		}
+
+		// update band title
+		$('#workspace .band[data-name="Header"] .title p').text('Header : ' + groupNameTop);
+		$('#workspace .band[data-name="Footer"] .title p').text('Footer : ' + groupNameTop);
+	}
+
 	Designer.prototype._CreatePreviewRecordsTable = function(previewWin, res){
 		previewWin.progressOff();
 
@@ -2838,6 +2880,14 @@ function Designer() {
 			} else {
 				previewWin.attachHTMLString('<p class="previewRecords">No result.</p>');
 			}
+		}
+		else {
+			dhtmlx.alert({
+				title:'Unexpected Error',
+				style:"alert",
+				text:'<img src="'+ designer.icon.error +'"/><br/>' + res.err.code + ' ('+ res.err.errno +')'
+			});
+			previewWin.close();
 		}
 	};
 
